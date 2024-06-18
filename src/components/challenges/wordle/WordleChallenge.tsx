@@ -1,0 +1,135 @@
+import Keyboard from "react-simple-keyboard";
+import { Button, Container, Divider, Header, Modal } from "semantic-ui-react";
+import { ToastContainer, Flip, toast } from 'react-toastify';
+import { ChallengeProps } from "../../../types";
+import Grid from "./Grid";
+import dictionary from '../../../data/dictionary';
+import { useEffect, useState } from "react";
+import useEventListener from "@use-it/event-listener";
+import { useLocalStorage } from "../../../util/storage";
+
+function random_word(length: number) {
+    const words = dictionary.filter(w => w.length === length);
+    return words[Math.floor(Math.random() * words.length)];
+}
+
+const layout = {
+    default: [
+        'q w e r t y u i o p',
+        'a s d f g h j k l',
+        '{enter} z x c v b n m {bksp}'
+    ]
+}
+
+const display = {
+    '{enter}': 'enter',
+    '{bksp}': 'backspace'
+}
+
+
+const WordleChallenge = ({ challenge, id, handleWin }: ChallengeProps<"wordle">) => {
+    const { word, tries } = challenge;
+
+    const [ solution, setSolution ] = useState(typeof word === 'number' ? random_word(word) : word);
+    const [ guesses, setGuesses ] = useLocalStorage<string[]>(id, []);
+    const [ currentGuess, setCurrentGuess ] = useState("");
+    const [ failed, setFailed ] = useState(false);
+    const [ won, setWon ] = useState(false);
+
+    useEffect(() => { won && handleWin() }, [won, handleWin])
+
+    const handleKeyPress = (key: string) => {
+        if (key === '{enter}') {
+            if (won) return;
+            // no more guesses left
+            if (tries > 0 && guesses.length >= tries) return;
+
+            if (currentGuess.length !== solution.length) {
+                return toast.error('Not enough letters');
+            }
+
+            if (!dictionary.includes(currentGuess)) {
+                return toast.error('Invalid guess')
+            }
+
+            setGuesses(guesses.concat(currentGuess));
+            setCurrentGuess('');
+
+            if (currentGuess === solution) {
+                toast.success('Good job!', {
+                    autoClose: 2000,
+                    onOpen: () => setWon(true)
+                });
+                return;
+            }
+
+            // last guess and did not win
+            if (guesses.length === tries - 1) {
+                setFailed(true);
+            }
+
+        } else if (key === '{bksp}') {
+            setCurrentGuess(currentGuess.slice(0, -1));
+        } else {
+            setCurrentGuess((currentGuess + key).slice(0, solution.length));
+        }
+    }
+
+    useEventListener('keydown', (({ key }: KeyboardEvent) => {
+        if (key === 'Backspace') return handleKeyPress('{bksp}');
+        if (key === 'Enter') return handleKeyPress('{enter}');
+        if ("abcdefghijklmnopqrstuvwxyz".includes(key)) return handleKeyPress(key);
+    }))
+
+    return (
+        <Container>
+            <Header as="h2">
+                Wordle!
+                <Header.Subheader>
+                    Guess the {typeof word === 'number' ? '(random)' : ''} word{
+                        tries === 0 ? '! You have unlimited tries!' : ` in ${tries} tries!`
+                    }
+                </Header.Subheader>
+            </Header>
+            <Divider />
+            <ToastContainer 
+                position="top-center"
+                autoClose={500}
+                transition={Flip}
+                theme="colored"
+            />
+            <Grid solution={solution} guesses={guesses} currentGuess={currentGuess} maxGuesses={tries}/>
+            <Divider />
+            <Keyboard onKeyPress={handleKeyPress} layout={layout} display={display}/>
+
+            {failed && (
+                <Modal open>
+                    <Modal.Header>Aw :( Better luck next time!</Modal.Header>
+                    <Modal.Content>
+                        <p>You didn't get it in the required number of tries :(</p>
+                        <p>Do you wanna try again?</p>
+                    </Modal.Content>
+                    <Modal.Actions>
+                        <Button 
+                          onClick={() => setFailed(false)}
+                          negative>
+                            Later
+                        </Button>
+                        <Button
+                          onClick={() => {
+                              setGuesses([]);
+                              setCurrentGuess("");
+                              setFailed(false);
+                              setSolution(typeof word === 'number' ? random_word(word) : word);
+                          }}
+                          positive>
+                            Yes
+                        </Button>
+                    </Modal.Actions>
+                </Modal>
+            )}
+        </Container>
+    )
+}
+
+export default WordleChallenge;

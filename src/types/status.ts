@@ -1,0 +1,1 @@
+export type ItemStatus = 'unavailable' | 'available' | 'unlocked';

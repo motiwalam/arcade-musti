@@ -1,0 +1,15 @@
+.gallery {
+    display: grid;
+    grid-template-columns: 6.51vw 6.51vw 6.51vw 6.51vw 6.51vw 6.51vw;
+    column-gap: 1.72vw;
+    justify-content: center;
+}
+
+.galleryitem {
+    padding: 1.04vw;
+    text-align: center
+}
+
+.galleryitem.unavailable {
+    opacity: 0.5
+}

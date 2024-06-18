@@ -1,0 +1,12 @@
+export type PipeStyle = 
+    "right"
+  | "left"
+  | "up"
+  | "down"
+  | "curb_top_right"
+  | "curb_top_left"
+  | "curb_bottom_right"
+  | "curb_bottom_left"
+  | "full" 
+  | "terminal" | "terminal_left" | "terminal_right" | "terminal_up" | "terminal_down"
+  | "empty"

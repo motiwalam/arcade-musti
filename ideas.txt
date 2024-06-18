@@ -1,0 +1,11 @@
+challenges:
+ X two truths and a lie
+ X trivia questions
+ X sudoku
+ - cross logic
+ X minesweeper
+ X crossword
+ X guessing game; 20 questions like
+ - matching game (learn tbl symbols; pictures of us)
+ X flow
+ X anagram (imessage)

@@ -1,0 +1,1 @@
+export type Status = 'correct' | 'incorrect' | 'given' | ''

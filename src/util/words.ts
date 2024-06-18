@@ -1,0 +1,1 @@
+export const counted_word = (count: number, word: string) => `${count} ${word}${count === 1 ? '' : 's'}`

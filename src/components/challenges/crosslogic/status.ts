@@ -1,0 +1,1 @@
+export type CellStatus = "yes" | "no" | "nopassive" | "empty"
