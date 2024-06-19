@@ -25,6 +25,6 @@ export function equals<T, K>(x: T, y: K): boolean {
     if (x instanceof Array && y instanceof Array) {
         return x.length === y.length && all(map(zip(x, y), ([x, y]) => equals(x, y)))
     }
-    // objects
+    // @ts-ignore
     return set_equals(Object.keys(x), Object.keys(y)) && set_equals(Object.values(x), Object.values(y))
 }
