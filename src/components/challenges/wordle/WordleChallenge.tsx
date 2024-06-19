@@ -130,6 +130,7 @@ const WordleChallenge = ({ challenge, id, handleWin }: ChallengeProps<"wordle">)
                     <Modal.Content>
                         <p>You didn't get it in the required number of tries :(</p>
                         <p>Do you wanna try again?</p>
+                        <p>P.S: the word was {solution}.</p>
                     </Modal.Content>
                     <Modal.Actions>
                         <Button 
