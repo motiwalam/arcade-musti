@@ -1,0 +1,12 @@
+
+.hg-button.hg-present {
+    background: rgb(234 179 8 / 1);
+}
+
+.hg-button.hg-correct {
+    background: rgb(34 197 94 / 1);
+}
+
+.hg-button.hg-absent {
+    background: rgb(148 163 184 / 1)
+}

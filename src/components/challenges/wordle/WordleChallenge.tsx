@@ -1,12 +1,16 @@
-import Keyboard from "react-simple-keyboard";
+import Keyboard, { KeyboardButtonTheme } from "react-simple-keyboard";
+import "react-simple-keyboard/build/css/index.css";
+import '../../../css/Wordle.css';
 import { Button, Container, Divider, Header, Modal } from "semantic-ui-react";
 import { ToastContainer, Flip, toast } from 'react-toastify';
 import { ChallengeProps } from "../../../types";
 import Grid from "./Grid";
 import dictionary from '../../../data/dictionary';
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import useEventListener from "@use-it/event-listener";
 import { useLocalStorage } from "../../../util/storage";
+import { CharStatus, getGuessStatuses } from "./statuses";
+import { zip } from "itertools";
 
 function random_word(length: number) {
     const words = dictionary.filter(w => w.length === length);
@@ -35,6 +39,24 @@ const WordleChallenge = ({ challenge, id, handleWin }: ChallengeProps<"wordle">)
     const [ currentGuess, setCurrentGuess ] = useState("");
     const [ failed, setFailed ] = useState(false);
     const [ won, setWon ] = useState(false);
+
+    const buttonTheme = useMemo<KeyboardButtonTheme[]>(() => {
+        // get status for each character in each guess
+        // take the priority
+        const charStatuses = guesses.flatMap(guess => zip(guess, getGuessStatuses(solution, guess)));
+        const statusMap: Record<string, CharStatus> = {};
+        for (const [c, s] of charStatuses) {
+            if (statusMap[c] === 'correct') continue;
+            if (statusMap[c] === 'present' && s !== 'correct') continue;
+            statusMap[c] = s;
+        }
+        return Object.entries(statusMap).map(([c, s]) => (
+            {
+                class: "hg-" + s,
+                buttons: c
+            }
+        ));
+    }, [solution, guesses]);
 
     useEffect(() => { won && handleWin() }, [won, handleWin])
 
@@ -100,7 +122,7 @@ const WordleChallenge = ({ challenge, id, handleWin }: ChallengeProps<"wordle">)
             />
             <Grid solution={solution} guesses={guesses} currentGuess={currentGuess} maxGuesses={tries}/>
             <Divider />
-            <Keyboard onKeyPress={handleKeyPress} layout={layout} display={display}/>
+            <Keyboard onKeyPress={handleKeyPress} layout={layout} display={display} buttonTheme={buttonTheme}/>
 
             {failed && (
                 <Modal open>
