@@ -11,11 +11,8 @@ import useEventListener from "@use-it/event-listener";
 import { useLocalStorage } from "../../../util/storage";
 import { CharStatus, getGuessStatuses } from "./statuses";
 import { zip } from "itertools";
-
-function random_word(length: number) {
-    const words = dictionary.filter(w => w.length === length);
-    return words[Math.floor(Math.random() * words.length)];
-}
+import { choose_random } from "../../../util/array";
+import { decode } from "../../../util/coding";
 
 const layout = {
     default: [
@@ -30,11 +27,15 @@ const display = {
     '{bksp}': 'backspace'
 }
 
+function random_word(length: number) {
+    const words = dictionary.filter(w => w.length === length);
+    return choose_random(words)
+}
 
 const WordleChallenge = ({ challenge, id, handleWin }: ChallengeProps<"wordle">) => {
-    const { word, tries } = challenge;
+    const { wordlength, tries, solution } = challenge;
 
-    const [ solution, setSolution ] = useState(typeof word === 'number' ? random_word(word) : word);
+    const [ soln, setSoln ] = useState(solution === undefined ? random_word(wordlength) : decode(solution));
     const [ guesses, setGuesses ] = useLocalStorage<string[]>(id, []);
     const [ currentGuess, setCurrentGuess ] = useState("");
     const [ failed, setFailed ] = useState(false);
@@ -43,7 +44,7 @@ const WordleChallenge = ({ challenge, id, handleWin }: ChallengeProps<"wordle">)
     const buttonTheme = useMemo<KeyboardButtonTheme[]>(() => {
         // get status for each character in each guess
         // take the priority
-        const charStatuses = guesses.flatMap(guess => zip(guess, getGuessStatuses(solution, guess)));
+        const charStatuses = guesses.flatMap(guess => zip(guess, getGuessStatuses(soln, guess)));
         const statusMap: Record<string, CharStatus> = {};
         for (const [c, s] of charStatuses) {
             if (statusMap[c] === 'correct') continue;
@@ -56,7 +57,7 @@ const WordleChallenge = ({ challenge, id, handleWin }: ChallengeProps<"wordle">)
                 buttons: c
             }
         ));
-    }, [solution, guesses]);
+    }, [soln, guesses]);
 
     useEffect(() => { won && handleWin() }, [won, handleWin])
 
@@ -66,7 +67,7 @@ const WordleChallenge = ({ challenge, id, handleWin }: ChallengeProps<"wordle">)
             // no more guesses left
             if (tries > 0 && guesses.length >= tries) return;
 
-            if (currentGuess.length !== solution.length) {
+            if (currentGuess.length !== soln.length) {
                 return toast.error('Not enough letters');
             }
 
@@ -77,7 +78,7 @@ const WordleChallenge = ({ challenge, id, handleWin }: ChallengeProps<"wordle">)
             setGuesses(guesses.concat(currentGuess));
             setCurrentGuess('');
 
-            if (currentGuess === solution) {
+            if (currentGuess === soln) {
                 toast.success('Good job!', {
                     autoClose: 2000,
                     onOpen: () => setWon(true)
@@ -93,7 +94,7 @@ const WordleChallenge = ({ challenge, id, handleWin }: ChallengeProps<"wordle">)
         } else if (key === '{bksp}') {
             setCurrentGuess(currentGuess.slice(0, -1));
         } else {
-            setCurrentGuess((currentGuess + key).slice(0, solution.length));
+            setCurrentGuess((currentGuess + key).slice(0, soln.length));
         }
     }
 
@@ -108,7 +109,7 @@ const WordleChallenge = ({ challenge, id, handleWin }: ChallengeProps<"wordle">)
             <Header as="h2">
                 Wordle!
                 <Header.Subheader>
-                    Guess the {typeof word === 'number' ? '(random)' : ''} word{
+                    Guess the {solution === undefined ? '(random)' : ''} word{
                         tries === 0 ? '! You have unlimited tries!' : ` in ${tries} tries!`
                     }
                 </Header.Subheader>
@@ -120,7 +121,7 @@ const WordleChallenge = ({ challenge, id, handleWin }: ChallengeProps<"wordle">)
                 transition={Flip}
                 theme="colored"
             />
-            <Grid solution={solution} guesses={guesses} currentGuess={currentGuess} maxGuesses={tries}/>
+            <Grid solution={soln} guesses={guesses} currentGuess={currentGuess} maxGuesses={tries}/>
             <Divider />
             <Keyboard onKeyPress={handleKeyPress} layout={layout} display={display} buttonTheme={buttonTheme}/>
 
@@ -130,7 +131,7 @@ const WordleChallenge = ({ challenge, id, handleWin }: ChallengeProps<"wordle">)
                     <Modal.Content>
                         <p>You didn't get it in the required number of tries :(</p>
                         <p>Do you wanna try again?</p>
-                        <p>P.S: the word was {solution}.</p>
+                        <p>P.S: the word was {soln}.</p>
                     </Modal.Content>
                     <Modal.Actions>
                         <Button 
@@ -143,7 +144,7 @@ const WordleChallenge = ({ challenge, id, handleWin }: ChallengeProps<"wordle">)
                               setGuesses([]);
                               setCurrentGuess("");
                               setFailed(false);
-                              setSolution(typeof word === 'number' ? random_word(word) : word);
+                              setSoln(solution === undefined ? random_word(wordlength) : solution)
                           }}
                           positive>
                             Yes

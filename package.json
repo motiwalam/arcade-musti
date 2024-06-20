@@ -15,6 +15,7 @@
         "@types/react-dom": "^18.0.5",
         "@use-it/event-listener": "^0.1.7",
         "bigeval": "github:motiwalam/BigEval.js",
+        "buffer": "^6.0.3",
         "classnames": "^2.5.1",
         "itertools": "^2.3.2",
         "ramda": "^0.30.1",

@@ -26,8 +26,8 @@ export function formatted_name(x: SavedGame<any>): ReactNode {
     const { name } = x.details;
     switch (name) {
         case 'wordle': {
-            const word = x.config.word;
-            return `Wordle (${counted_word(typeof word === 'string' ? word.length : word, 'letter')})`
+            const wordlength = x.config.wordlength;
+            return `Wordle (${counted_word(wordlength, 'letter')})`
         }
 
         case 'flow':

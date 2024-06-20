@@ -4,8 +4,9 @@ import { CluesInputOriginal } from "@jaredreisinger/react-crossword/dist/types";
 import { Equal } from "./unions";
 export interface Games {
     wordle: {
-        word: string | number;
+        wordlength: number;
         tries: number;
+        solution?: string;
     };
 
     game24: {
