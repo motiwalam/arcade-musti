@@ -5,7 +5,7 @@ import { Button, Container, Divider, Header, Modal } from "semantic-ui-react";
 import { ToastContainer, Flip, toast } from 'react-toastify';
 import { ChallengeProps } from "../../../types";
 import Grid from "./Grid";
-import dictionary from '../../../data/dictionary';
+import DICTS from '../../../data/dictionary';
 import { useEffect, useMemo, useState } from "react";
 import useEventListener from "@use-it/event-listener";
 import { useLocalStorage } from "../../../util/storage";
@@ -13,6 +13,7 @@ import { CharStatus, getGuessStatuses } from "./statuses";
 import { zip } from "itertools";
 import { choose_random } from "../../../util/array";
 import { decode } from "../../../util/coding";
+import { Lang } from "../../../types/languages";
 
 const layout = {
     default: [
@@ -27,15 +28,15 @@ const display = {
     '{bksp}': 'backspace'
 }
 
-function random_word(length: number) {
-    const words = dictionary.filter(w => w.length === length);
+function random_word(length: number, language: Lang) {
+    const words = DICTS[language].filter(w => w.length === length);
     return choose_random(words)
 }
 
 const WordleChallenge = ({ challenge, id, handleWin }: ChallengeProps<"wordle">) => {
-    const { wordlength, tries, solution } = challenge;
+    const { wordlength, tries, solution, language } = challenge;
 
-    const [ soln, setSoln ] = useState(solution === undefined ? random_word(wordlength) : decode(solution));
+    const [ soln, setSoln ] = useState(solution === undefined ? random_word(wordlength, language) : decode(solution));
     const [ guesses, setGuesses ] = useLocalStorage<string[]>(id, []);
     const [ currentGuess, setCurrentGuess ] = useState("");
     const [ failed, setFailed ] = useState(false);
@@ -71,7 +72,7 @@ const WordleChallenge = ({ challenge, id, handleWin }: ChallengeProps<"wordle">)
                 return toast.error('Not enough letters');
             }
 
-            if (!dictionary.includes(currentGuess)) {
+            if (!DICTS[language].includes(currentGuess)) {
                 return toast.error('Invalid guess')
             }
 
@@ -144,7 +145,7 @@ const WordleChallenge = ({ challenge, id, handleWin }: ChallengeProps<"wordle">)
                               setGuesses([]);
                               setCurrentGuess("");
                               setFailed(false);
-                              setSoln(solution === undefined ? random_word(wordlength) : solution)
+                              setSoln(solution === undefined ? random_word(wordlength, language) : solution)
                           }}
                           positive>
                             Yes

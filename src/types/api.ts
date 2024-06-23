@@ -2,11 +2,14 @@ import { ItemStatus } from "./status";
 import { Color } from './color';
 import { CluesInputOriginal } from "@jaredreisinger/react-crossword/dist/types";
 import { Equal } from "./unions";
+import { Lang } from "./languages";
+
 export interface Games {
     wordle: {
         wordlength: number;
         tries: number;
         solution?: string;
+        language: Lang;
     };
 
     game24: {

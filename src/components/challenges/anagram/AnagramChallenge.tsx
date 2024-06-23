@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Bounce, Flip, toast, ToastContainer, ToastOptions } from "react-toastify";
 import { Button, Container, Divider, Form, Grid, Header, List, Segment } from "semantic-ui-react";
 import { ChallengeProps } from "../../../types";
-import dictionary from "../../../data/dictionary";
+import DICTS from "../../../data/dictionary";
 import { useLocalStorage } from "../../../util/storage";
 import { counted_word } from "../../../util/words";
 import UnfocusingButton from "../../../util/components/Button";
@@ -63,7 +63,7 @@ const AnagramChallenge = ({ challenge, id, handleWin}: ChallengeProps<"anagram">
             return toast.error('you already guessed that!', toast_options)
         }
 
-        if (!dictionary.includes(guess)) {
+        if (!DICTS['en'].includes(guess)) {
             return toast.error("that word doesn't exist!", toast_options)
         }
 

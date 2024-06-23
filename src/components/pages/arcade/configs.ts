@@ -11,7 +11,7 @@ export type ConfigProps<G extends SupportedGames> = {
 export function default_config(game: SupportedGames) {
     switch (game) {
         case 'wordle':
-            return { wordlength: 5, tries: 6 }
+            return { wordlength: 5, tries: 6, language: 'en' }
 
         case 'fifteen':
             return { width: 4, height: 4 }
