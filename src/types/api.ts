@@ -4,6 +4,10 @@ import { CluesInputOriginal } from "@jaredreisinger/react-crossword/dist/types";
 import { Equal } from "./unions";
 import { Lang } from "./languages";
 
+type DominoeFace = 0 | 1 | 2 | 3 | 4 | 5 | 6
+type Dominoe = [DominoeFace, DominoeFace]
+type Coordinate = [number, number]
+
 export interface Games {
     wordle: {
         wordlength: number;
@@ -99,6 +103,21 @@ export interface Games {
         target_power: number;
     };
 
+    pips: {
+        name: string;
+
+        dominoes: Dominoe[];
+        regions: ({
+            indices: Coordinate[];
+        } & (
+            {type: "empty" | "unequal" | "equals"} 
+            | {type: "sum" | "greater" | "less"; target: number}
+        ))[];
+
+        // is a parallel list to dominoes
+        solution: [Coordinate, Coordinate][];
+    };
+
     unimplemented: {}
 }
 
@@ -118,6 +137,7 @@ export const challenge_types = [
     'crossword',
     'crosslogic',
     'game2048',
+    'pips',
     'unimplemented'
 ] as const;
 
@@ -129,6 +149,7 @@ export type Challenge = {
         config: Games[k]
     }
 }[keyof Games]
+
 
 export type SupportedMimeTypes = 'text/plain' | 'image/png' | 'image/jpg' | 'video/mp4' | 'audio/ogg' | 'audio/mpeg'
 

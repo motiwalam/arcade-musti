@@ -10,6 +10,7 @@ export const supported_games = [
     "anagram",
     "game2048",
     "crosslogic",
+    "pips",
 ] as const;
 
 export type SupportedGames = (typeof supported_games)[number]
