@@ -3,14 +3,14 @@ import { Games } from "../../../types";
 export const supported_games = [
     "wordle",
     "sudoku",
+    "pips",
     "flow",
     "minesweeper",
+    "game2048",
     "fifteen",
     "game24",
     "anagram",
-    "game2048",
     "crosslogic",
-    "pips",
 ] as const;
 
 export type SupportedGames = (typeof supported_games)[number]
