@@ -3,6 +3,8 @@ import { Form } from "semantic-ui-react"
 import { choose_random } from "../../../../util/array"
 import { parse_flow_free_level } from "../../../challenges/flow/flow-level-specs"
 import { ConfigProps } from "../configs"
+import { useLocalStorage } from "../../../../util/storage"
+import { assoc } from "ramda"
 
 const levels = [
     '5x5',
@@ -64,15 +66,17 @@ const levels = [
     '15x18'
 ]
 
-const FlowConfig = ({ setConfig }: ConfigProps<"flow">) => {
+const FlowConfig = ({ setConfig, setOnWin }: ConfigProps<"flow">) => {
     const [ loading, setLoading ] = useState(false);
+    const [ completed, setCompleted ] = useLocalStorage<Record<string, boolean>>("flow-completed-levels", {});
+    
     return (
         <Form>
             <Form.Dropdown
                 selection search 
                 placeholder="Select Size"
-                options={levels.map(l => ({ text: l, value: l }))} 
-                loading={loading} 
+                options={levels.map(l => ({ text: `${l} ${completed[l] ? "✓" : ""}`, value: l }))}
+                loading={loading}
                 onChange={(_, { value }) => {
                     setLoading(true);
                     
@@ -86,6 +90,9 @@ const FlowConfig = ({ setConfig }: ConfigProps<"flow">) => {
                             level,
                             w === h ? 'square' : 'rectangle'
                         ));
+                        setOnWin(() => () => {
+                            setCompleted(assoc(`${value}`, true, completed));
+                        });
                         setLoading(false);
                     })
                 }}/>

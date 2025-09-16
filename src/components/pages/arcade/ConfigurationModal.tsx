@@ -4,7 +4,7 @@ import { SUSPENSE_FALLBACK } from "../../../data/constants";
 import { Games } from "../../../types";
 import { fromEntries } from "../../../util/object";
 import { camel_case, randomString } from "../../../util/strings";
-import { ConfigProps, default_config } from "./configs";
+import { ConfigProps, default_config, OnWinHandler } from "./configs";
 import GameModal from "./GameModal";
 import { GameStore } from "./gamestore";
 import { SupportedGames, supported_games } from "./supported";
@@ -25,14 +25,16 @@ const CONFIG_MAP: {
     g, lazy(() => import(`./configs/${camel_case(g)}Config`))
 ]))
 
-function create_configuration<G extends SupportedGames>(game: G, config: Games[G], setConfig: (x: Games[G]) => void) {
+function create_configuration<G extends SupportedGames>(game: G, config: Games[G], setConfig: (x: Games[G]) => void, setOnWin: (x: OnWinHandler | ((x: OnWinHandler) => OnWinHandler)) => void) {
     const C = CONFIG_MAP[game];
     // @ts-ignore
-    return <C config={config} setConfig={setConfig} />
+    return <C config={config} setConfig={setConfig} setOnWin={setOnWin} />
 }
 
 const ConfigurationModal = <G extends SupportedGames>({ onClose, game, setGameStore, setActiveGame }: ConfigurationModalProps<G>) => {
     const [config, setConfig] = useState<Games[G]>(default_config(game) as Games[G]);
+
+    const [onWin, setOnWin] = useState<OnWinHandler>(() => {});
 
     return (
         <Modal open onClose={onClose}>
@@ -42,7 +44,7 @@ const ConfigurationModal = <G extends SupportedGames>({ onClose, game, setGameSt
 
             <Modal.Content>
                 <Suspense fallback={SUSPENSE_FALLBACK}>
-                    {create_configuration(game, config, setConfig)}
+                    {create_configuration(game, config, setConfig, setOnWin)}
                 </Suspense>
             </Modal.Content>
 
@@ -68,6 +70,8 @@ const ConfigurationModal = <G extends SupportedGames>({ onClose, game, setGameSt
                             config={config}
                             onClose={() => setActiveGame(undefined)}
                             onWin={() => {
+                                console.log("calling onWin");
+                                onWin(uuid);
                                 setGameStore(dissoc(uuid));
                                 localStorage.removeItem(uuid);
                             }}

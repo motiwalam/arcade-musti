@@ -3,9 +3,12 @@ import { parse_flow_free_level } from "../../challenges/flow/flow-level-specs";
 import { SupportedGames } from "./supported";
 import { crosslogics } from "../../../data/cross-logics";
 
+export type OnWinHandler = (id: string) => void;
+
 export type ConfigProps<G extends SupportedGames> = {
     config: Games[G];
     setConfig: (x: Games[G] | ((x: Games[G]) => any)) => void
+    setOnWin: (x: OnWinHandler | ((x: OnWinHandler) => OnWinHandler)) => void
 }
 
 export function default_config(game: SupportedGames) {
