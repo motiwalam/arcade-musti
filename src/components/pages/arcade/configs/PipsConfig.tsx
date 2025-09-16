@@ -7,7 +7,7 @@ import { useLocalStorage } from "../../../../util/storage";
 import { assoc } from "ramda";
 
 const start = new Date('2025-08-18');
-const end = new Date('2025-09-14');
+const end = new Date('2025-09-16');
 
 const levels = Array.from(flat<string>(map(dateRange(start, end, DAY), date => ["easy", "medium", "hard"].map(diff => {
     const [year, month, day] = [date.getUTCFullYear(), date.getUTCMonth() + 1, date.getUTCDate()].map(x => `${x}`);
